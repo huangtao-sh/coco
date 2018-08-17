@@ -26,4 +26,4 @@ create table if not exists Users(
     fqjyz    text,                -- 发起交易组
     zjzl     text,                -- 证件种类
     zjhm     text                 -- 证件号码
-)
+);
