@@ -75,7 +75,7 @@ class Users(object):
                 print(*r)
             print(f'共查出柜员{len(d)}条记录')
 
-        sql = '''select branch,id,name,count(name) as c,zjzl,zjhm from Users where substr(status,1,1) 
+        sql = '''select branch,zjzl,zjhm,count(name) as c,name from Users where substr(status,1,1) 
         not in ("3","4") 
         group by branch,zjzl,zjhm,name
         having c>1 
@@ -91,7 +91,8 @@ class Users(object):
 
     @classmethod
     @arg('-p', '--paicha', action='store_true', help='排查柜员情况')
-    def main(cls, paicha=False):
+    @arg('query', nargs='?', help='查询条件')
+    def main(cls, query, paicha=False):
         if paicha:
             with connect():
                 cls.paicha()
