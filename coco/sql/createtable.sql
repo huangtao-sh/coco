@@ -27,3 +27,11 @@ create table if not exists Users(
     zjzl     text,                -- 证件种类
     zjhm     text                 -- 证件号码
 );
+
+-- 科目说明
+
+create table if not exists Kemu(
+    id text primary key,
+    name text,
+    describ text
+);
