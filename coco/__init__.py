@@ -1,3 +1,10 @@
+# 项目：运营管理模块
+# 模块：主查获块
+# 作者：黄涛
+# License:GPL
+# Email:huangtao.sh@icloud.com
+# 创建：2018-08-18 08:32
+
 from orange import Path,arg
 from orange.sqlite import db_config,connect,executefile,execute
 from .checkfile import dumpcheck,adumpcheck

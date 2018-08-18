@@ -1,7 +1,15 @@
-from json import dumps,loads
-from orange.sqlite import executemany,find
+# 项目：运营管理系统
+# 模块：柜员表
+# 作者：黄涛
+# License:GPL
+# Email:huangtao.sh@icloud.com
+# 创建：2018-08-18 08:28
 
-GangWei='''R01:交易发起岗
+from json import dumps, loads
+from orange.sqlite import executemany, find, connect
+from orange import arg
+
+GangWei = '''R01:交易发起岗
 R02:前台授权岗
 R03:凭证管理岗
 R04:分中心授权岗
@@ -29,57 +37,61 @@ R43:放款核准人
 R44:放款复核人
 R45:业务审核岗'''
 
-Columns=0,1,2,4,6,7,35,37,38,39,50,51,52,53,54,55,56,58,59
-gw={}
+Columns = 0, 1, 2, 4, 6, 7, 35, 37, 38, 39, 50, 51, 52, 53, 54, 55, 56, 58, 59
+gw = {}
 for k in GangWei.split('\n'):
-    a,b=k.split(':')
-    gw[a]=b
+    a, b = k.split(':')
+    gw[a] = b
+
 
 class Users(object):
     @classmethod
-    async def load(cls,file):
-        sql=f'insert or replace into Users values ({",".join(["?"]*20)})'
-        data=[]
+    async def load(cls, file):
+        sql = f'insert or replace into Users values ({",".join(["?"]*20)})'
+        data = []
         for row in file.iter_csv():
-            d=[row[x].strip() for x in Columns]
-            gg={}
-            for i,name in enumerate(gw,8):
-                v=row[i].strip()
+            d = [row[x].strip() for x in Columns]
+            gg = {}
+            for i, name in enumerate(gw, 8):
+                v = row[i].strip()
                 if v:
-                    gg[name]=v
-            d.insert(6,dumps(gg))
+                    gg[name] = v
+            d.insert(6, dumps(gg))
             data.append(d)
-        await executemany(sql,data)
+        await executemany(sql, data)
         print(f'共导入数据{len(data)}条')
 
     @classmethod
     def paicha(cls):
         print('排查用户表')
-        
-        sql='''select branch,id,name from Users where substr(status,1,1) 
+
+        sql = '''select branch,id,name from Users where substr(status,1,1) 
         not in ("3","4") and rzlx="0" '''
-        d=find(sql)
+        d = find(sql)
         if (d):
             print('-'*40)
             print('未使用指纹柜员排查')
             for r in d:
                 print(*r)
             print(f'共查出柜员{len(d)}条记录')
-            
-        sql='''select branch,id,name,count(name) as c,zjzl,zjhm from Users where substr(status,1,1) 
+
+        sql = '''select branch,id,name,count(name) as c,zjzl,zjhm from Users where substr(status,1,1) 
         not in ("3","4") 
         group by branch,zjzl,zjhm,name
         having c>1 
         order by branch,id
         '''
-        d=find(sql)
+        d = find(sql)
         if (d):
             print('-'*40)
             print('同机构开立多个柜员排查')
             for r in d:
                 print(*r)
             print(f'共查出柜员{len(d)}条记录')
-            
 
-            
-        
+    @classmethod
+    @arg('-p', '--paicha', action='store_true', help='排查柜员情况')
+    def main(cls, paicha=False):
+        if paicha:
+            with connect():
+                cls.paicha()
